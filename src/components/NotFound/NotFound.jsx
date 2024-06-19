@@ -6,7 +6,7 @@ export default function NotFound() {
     <>
       <Helmet>
         <meta charSet="utf-8" />
-        <title>A - Shop | Page Not Found</title>
+        <title>MediConnect Pro | Page Not Found</title>
         <meta name='description' content='Page Not Found' />
         <link rel="canonical" href="http://mysite.com/example" />
       </Helmet>

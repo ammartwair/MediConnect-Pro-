@@ -19,29 +19,30 @@ export default function SendCode(props) {
   })
 
   async function sendCodeDate(values){
-
-    let {data} = await axios.patch("https://king-prawn-app-3mgea.ondigitalocean.app/auth/sendCode",values)
+    let code = null;
+    let res = await axios.patch("http://localhost:5000/auth/sendCode",values)
+    .then((response)=>{
+      if (response.data.message == 'Done'){
+        navigate('/ChangePassword');
+      }else{
+        console.log(response.data.message);
+    }
+    })
     .catch((err)=>{
       console.log(err);
     })
- 
-    if (data.message == 'Done'){
-      navigate('/ChangePassword');
-    }else{
-        console.log(data.message);
-    }
   }
+
   return (
     <>
      <Helmet>
         <meta charSet="utf-8" />
-        <title>A - Shop | Login</title>
-        <meta name='description' content='This is Login page' />
+        <title>MediConnect Pro | Forgot Password</title>
+        <meta name='description' content='This is Forgot Password page' />
         <link rel="canonical" href="http://mysite.com/example" />
       </Helmet>
       <div>
         <h2 className='my-4'>Send Code To Change Password</h2>
-
         <form onSubmit={formik.handleSubmit}>
         <div className="form-floating mb-3">
           <input type="email" name='email' className="form-control" id="floatingEmail" placeholder="Email address" 
