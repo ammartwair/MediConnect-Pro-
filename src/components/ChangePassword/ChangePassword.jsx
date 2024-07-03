@@ -1,13 +1,17 @@
 import axios from 'axios'
 import { useFormik, yupToFormErrors } from 'formik'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet';
 import { useNavigate , Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import * as Yup from 'yup'
-
+import './ChangePassword.css'
 
 export default function ChangePassword() {
+
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
 
 
     let [errors, setErrors] = useState([]);
@@ -54,7 +58,7 @@ export default function ChangePassword() {
                 <meta name='description' content='This is Change Password page' />
                 <link rel="canonical" href="http://mysite.com/example" />
             </Helmet>
-            <div>
+            <div className='password'>
                 <h2 className='my-4'>Change Password</h2>
                 {errors.map((error) => {
                     return <div className='text-dager'>{error.message}</div>

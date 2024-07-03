@@ -1,0 +1,40 @@
+
+.about {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  
+  .about-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+  
+  .about-img {
+    width: 100%;
+    margin: 1rem 0rem 0rem 2rem;
+  }
+  
+  .about-img img {
+    width: 100%;
+  }
+  
+  .about-info {
+    width: 100%;
+    margin-right: 4rem;
+  }
+  
+  .about-info span {
+    font-size: 2.5rem;
+    font-weight: bold;
+  }
+  
+  .about-info span .our {
+    color: red;
+  }
+  
+  .about-info p {
+    font-size: 1.1rem;
+  }
+  

@@ -1,0 +1,8 @@
+.AdminDashboardCover {
+    background: url('/src/images/AdminDashboard.png') no-repeat center center;
+    width: 100%;
+    height: 0;
+    padding-top: 15.25%;
+    background-size: cover;
+    position: relative;
+}

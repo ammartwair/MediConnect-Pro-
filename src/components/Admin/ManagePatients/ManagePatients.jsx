@@ -1,21 +1,26 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet';
-import { useParams, Link } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import { Link } from 'react-router-dom';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import Loading from '../../Loading/Loading.jsx';
 
 export default function ManagePatients() {
 
     const [patients, setPatients] = useState([]);
+    const [newPage, setNewPage] = useState(true);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        getPatients().then((result) => {
-            setPatients(result);
-        });
+        if (newPage) {
+            window.scrollTo(0, 0);
+            getPatients();
+            setNewPage(false);
+        }
     }, []);
 
     async function getPatients() {
-        let pats = [];
+        setLoading(true);
         const axiosInstance = axios.create({
             baseURL: 'http://localhost:5000',
             headers: {
@@ -27,17 +32,22 @@ export default function ManagePatients() {
             if (response.data) {
                 let { data } = response;
                 if (data.message === "Success") {
-                    pats = data.patients;
-                    return pats;
+                    setPatients(data.patients);
+                    setLoading(false);
                 } else {
                     console.log(response.data.message);
+                    setLoading(false);
                 }
             }
         })
             .catch((err) => {
                 console.log(err);
+                setLoading(false);
             })
-        return pats;
+    }
+
+    if (loading) {
+        return <Loading />
     }
 
     return (
@@ -48,36 +58,46 @@ export default function ManagePatients() {
                 <meta name="description" content="This is Specialty page" />
                 <link rel="canonical" href="www.facebook.com" />
             </Helmet>
-            <div>
-                <h2 className='my-4' id="SpecialtyTitle" style={{ textTransform: 'capitalize' }}>{ }</h2>
-                <div className="container">
-                    {patients.length > 0 ?
-                        <>
-                            <div className="row">
-                                {
-                                    patients.map((patient) => (
-                                        <div key={patient._id} className="col-md-4" style={{ border: '1px solid black', position: "relative", height: '600px' }} >
+            {
+                patients?.length > 0 ?
+                    <div className='container pt-5' >
+                        <h3>Registered Patients: </h3>
+                    </div>
+                    : <></>
+            }
+            <div className="container joiningReq">
+                {patients?.length > 0 ?
+                    <Swiper
+                        spaceBetween={50}
+                        slidesPerView={3}
+                        onSlideChange={() => console.log('slide change')}
+                    >
+                        {patients.map((patient, index) => (
+                            <SwiperSlide key={patient._id}>
+                                <div className="doctor-card">
+                                    <div className="doctor-image">
+                                        <Link to={`/Profile/${patient._id}`}>
+                                            <img decoding="async" src={patient.image.secure_url} alt={`DR ${patient.userName}`} height={"470px"} />
+                                        </Link>
+                                    </div>
+                                    <div className="doctor-content">
+                                        <h3><Link to={`/Profile/${patient._id}`}>Dr. {patient.userName}</Link></h3>
+                                    </div>
+                                    <div>
+                                        <p>Phone: {patient.phoneNumber}</p>
+                                        <p>Address: {patient.address}</p>
+                                    </div>
+                                </div>
 
-                                            <div height={'60%'}>
-                                                <img src={patient.image.secure_url} alt="patient's image" style={{ height: '100%', width: '100%' }} />
-                                            </div>
-                                            <div height={'20%'}>
-                                                <h4 className='mt-2' style={{ textAlign: 'center', textTransform: 'capitalize' }} >{patient.userName}</h4>
-                                            </div>
-                                            <div style={{ position: 'absolute', bottom: "0", left: '50%', transform: 'translate(-50%, -50%)' }}>
-                                                <Link to={`/Profile/${patient._id}`}>
-                                                    <h5 style={{ textAlign: 'center' }}>VIEW PROFILE</h5>
-                                                </Link>
-                                            </div>
-                                        </div>
-                                    ))
-                                }
-                            </div>
-                        </> : <>
-                            <h3> No Registerd Patients Yet</h3>
-                        </>
-                    }
-                </div>
+                            </SwiperSlide>
+                        ))
+                        }
+                    </Swiper>
+                    : <>
+                        <h2 style={{ textAlign: "center" }}>No Registered Patients Yet</h2>
+                    </>
+                }
+
             </div>
         </>
     )

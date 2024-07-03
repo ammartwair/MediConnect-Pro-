@@ -3,10 +3,17 @@
   color: #fff;
   padding: 20px 0;
   text-align: center;
-   /* position: absolute;  */
-  bottom: 0px;
+  /* position: absolute; 
+  bottom: 0px; */
   width: 100%;
-  z-index: 1000; /* Ensure the footer is above other content */
+  /* z-index: 1000; */
+  /* Ensure the footer is above other content */
+
+  /* display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-grow: 0;
+  width: 100%; */
 }
 
 .footer__content {

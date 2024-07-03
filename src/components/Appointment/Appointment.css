@@ -1,0 +1,78 @@
+input[type="date"]::-webkit-calendar-picker-indicator {
+    display: none;
+    -webkit-appearance: none;
+}
+
+/* Firefox hides the date picker button with this rule */
+
+input[type="date"] {
+    -moz-appearance: textfield;
+}
+
+
+input[type="date"]::-ms-clear {
+    display: none;
+}
+
+input[type="date"]::-ms-expand {
+    display: none;
+}
+
+.datePicker input {
+    width: 100%;
+    text-align: center;
+    cursor: pointer;
+    padding: 0.5rem;
+    font-size: 1rem;
+    font-weight: bold;
+    border: 0;
+
+}
+p
+
+.appointment .firstinput input {
+    width: 100%;
+    text-align: center;
+    cursor: pointer;
+    padding: 0.5rem;
+    font-size: 1rem;
+    font-weight: bold;
+    border: 0;
+    background-size: 300% 100%;
+    moz-transition: all .4s ease-in-out;
+    -o-transition: all .4s ease-in-out;
+    -webkit-transition: all .4s ease-in-out;
+    transition: all .4s ease-in-out;
+}
+
+.validDate input {
+    background-image: linear-gradient(to right, #0ba360, #3cba92, #30dd8a, #2bb673);
+    box-shadow: 0 4px 15px 0 rgba(23, 168, 108, 0.75);
+}
+
+.invalidDate input {
+
+    background-image: linear-gradient(to right, #eb3941, #f15e64, #e14e53, #e2373f);
+    box-shadow: 0 5px 15px rgba(242, 97, 103, .4);
+}
+
+.equalDate input {
+    background-image: linear-gradient(to right, #667eea, #764ba2, #6B8DD6, #8E37D7);
+    box-shadow: 0 4px 15px 0 rgba(116, 79, 168, 0.75);
+}
+
+.datePicker input:hover {
+    background-position: 100% 0;
+    moz-transition: all .4s ease-in-out;
+    -o-transition: all .4s ease-in-out;
+    -webkit-transition: all .4s ease-in-out;
+    transition: all .4s ease-in-out;
+}
+
+.datePicker input:focus {
+    outline: none;
+}
+
+.datePicker {
+    width: 100%;
+}

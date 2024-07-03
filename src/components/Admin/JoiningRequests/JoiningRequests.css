@@ -1,0 +1,13 @@
+.joiningReq .swiper-wrapper {
+    display: flex;
+    justify-content: center;
+}
+
+.joiningReq .swiper-slide {
+    height: 100%;
+}
+
+.joiningReq .doctor-card {
+    height: 100%;
+    padding-bottom: 5%;
+}

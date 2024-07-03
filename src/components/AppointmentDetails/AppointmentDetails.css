@@ -1,0 +1,59 @@
+.appointmentDetails .container {
+
+	padding-left: 15%;
+
+}
+
+
+.btns {
+	box-sizing: border-box;
+	color: #fff;
+	font-size: 16px;
+	line-height: 16px;
+	font-weight: normal;
+	display: inline-flex;
+	justify-content: center;
+	align-items: center;
+	cursor: pointer;
+	transition: 0.3s all;
+	position: relative;
+	padding: 10px 20px;
+	min-height: 50px;
+	min-width: 140px;
+	background-color: transparent;
+	background-image: none;
+	text-decoration: none;
+	text-transform: uppercase;
+	font-weight: bold;
+	position: relative;
+	z-index: 0;
+	border: 0
+}
+
+.btns:after {
+	content: "";
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	top: 0;
+	z-index: -1;
+	background-color: #000;
+	border-radius: 30px;
+	transition: 0.3s all;
+}
+
+.btns:hover:after {
+	left: -20px;
+	right: -20px;
+}
+
+.appointmentDetails .link {
+	color: #000;
+	text-decoration: none;
+}
+
+.showReview:hover {
+	text-decoration: underline;
+	cursor: pointer;
+}

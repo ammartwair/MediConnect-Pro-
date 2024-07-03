@@ -1,9 +1,5 @@
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+
+h1, h2, h3, h4, h5, h6 {
     font-family: 'Source Sans Pro', 'Arial', sans-serif;
     font-weight: normal;
     color: #000;
@@ -17,5 +13,4 @@ h3::after {
     height: 2px;
     background: red;
     margin-top: 7px;
-
 }

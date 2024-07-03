@@ -3,19 +3,31 @@ import React, { useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet';
 import { useParams, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import Loading from '../../Loading/Loading.jsx';
+import './JoiningRequests.css'
+import LoadingButton from '../../LoadingButton/LoadingButton.jsx';
 
 export default function JoiningRequests() {
 
     const [doctors, setDoctors] = useState([]);
+    const [loadingAccept, setLoadingAccept] = useState(false);
+    const [loadingReject, setLoadingReject] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [newPage, setNewPage] = useState(true);
+    const [customIndex, setCustomIndex] = useState('-1');
+    const [request, setRequest] = useState(false);
 
     useEffect(() => {
-        getDoctors().then((result) => {
-            setDoctors(result);
-        });
-    }, []);
+        if (newPage) {
+            window.scrollTo(0, 0);
+            setNewPage(false);
+        }
+        getDoctors();
+    }, [request]);
 
     async function getDoctors() {
-        let docs = [];
+        setLoading(true);
         const axiosInstance = axios.create({
             baseURL: 'http://localhost:5000',
             headers: {
@@ -27,20 +39,23 @@ export default function JoiningRequests() {
             if (response.data) {
                 let { data } = response;
                 if (data.message === "Success") {
-                    docs = data.doctors;
-                    return docs;
+                    setDoctors(data.doctors);
+                    setLoading(false);
                 } else {
                     console.log(response.data.message);
+                    setLoading(false);
                 }
             }
         })
             .catch((err) => {
                 console.log(err);
+                setLoading(false);
             })
-        return docs;
     }
 
-    async function handleAccept(id) {
+    async function handleAccept(id, index) {
+        setCustomIndex(index);
+        setLoadingAccept(true);
         const axiosInstance = axios.create({
             baseURL: 'http://localhost:5000',
             headers: {
@@ -53,21 +68,25 @@ export default function JoiningRequests() {
                 let { data } = response;
                 if (data.message === "Doctor Accepted") {
                     toast.success("Doctor Accepted successfully");
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 2000);
+                    setLoadingAccept(false);
+                    setRequest(!request);
                 } else {
                     toast.error("Error Occured")
+                    setLoadingAccept(false);
                     console.log(response.data.message);
                 }
             }
         })
             .catch((err) => {
+                toast.error("Error Occured")
                 console.log(err);
+                setLoadingAccept(false);
             })
     }
 
-    async function handleReject(role, id) {
+    async function handleReject(role, id, index) {
+        setCustomIndex(index);
+        setLoadingReject(true);
         const axiosInstance = axios.create({
             baseURL: 'http://localhost:5000',
             headers: {
@@ -80,18 +99,24 @@ export default function JoiningRequests() {
                 let { data } = response;
                 if (data.message === "Success") {
                     toast.success("Rejected successfully");
-                    setTimeout(() => {
-                        window.location.reload();
-                    }, 2000);
+                    setLoadingReject(false);
+                    setRequest(!request);
                 } else {
-                    toast.error("Error Occured")
+                    toast.error("Error Occured");
+                    setLoadingReject(false);
                     console.log(response.data.message);
                 }
             }
         })
             .catch((err) => {
+                toast.error("Error Occured");
+                setLoadingReject(false);
                 console.log(err);
             })
+    }
+
+    if (loading) {
+        return <Loading />
     }
 
 
@@ -103,38 +128,62 @@ export default function JoiningRequests() {
                 <meta name="description" content="This is Specialty page" />
                 <link rel="canonical" href="www.facebook.com" />
             </Helmet>
-            <div>
-                <h2 className='my-4' id="SpecialtyTitle" style={{ textTransform: 'capitalize' }}>{ }</h2>
-                <div className="container">
-                    {doctors.length > 0 ?
-                        <>
-                            {
-                                doctors.map((doctor) => (
-                                    <div key={doctor._id} className='d-flex justify-conetnt-between'>
-                                        <div className='d-flex justify-content-center' style={{ width: "50%" }}>
-                                            <img src={doctor.image.secure_url} alt="Doctor's image" />
-                                        </div>
-                                        <div style={{ width: "50%" }}>
-                                            <br /><br />
-                                            <h4 className='mt-2' style={{ textTransform: 'capitalize' }} >Name: {doctor.userName}</h4>
-                                            <p>Specialties: {doctor.specialties.join(', ')}</p>
-                                            <p>License Number: {doctor.licenseNumber}</p>
-                                            <p>Years Of Experience: {doctor.yearsOfExperience}</p>
-                                            <p>Phone Number: {doctor.phoneNumber}</p>
-                                            <p>Address: {doctor.address}</p>
-                                            <p>Bio: {doctor.bio}</p>
-                                            <button type="button" onClick={() => handleAccept(doctor._id)} className="btn btn-success mt-3 mx-4">Accept</button>
-                                            <button type="button" onClick={() => handleReject(doctor.role, doctor._id)} className="btn btn-danger mt-3 mx-4">Reject</button>
-                                        </div>
+            {
+                doctors.length > 0 ?
+                    <div className='container pt-5' >
+                        <h3>Doctors Joining Requests: </h3>
+                    </div>
+                    : <></>
+            }
+            <div className="container joiningReq">
+                {doctors.length > 0 ?
+                    <Swiper
+                        spaceBetween={50}
+                        slidesPerView={3}
+                        onSlideChange={() => console.log('slide change')}
+                    >
+                        {doctors.map((doctor, index) => (
+                            <SwiperSlide key={doctor._id}>
+                                <div className="doctor-card">
+                                    <div className="doctor-image">
+                                        <Link to={`/Profile/${doctor._id}`}>
+                                            <img decoding="async" src={doctor.image.secure_url} alt={`DR ${doctor.userName}`} height={"470px"} />
+                                        </Link>
                                     </div>
-                                ))
-                            }
+                                    <div className="doctor-content">
+                                        <h3><Link to={`/Profile/${doctor._id}`}>Dr. {doctor.userName}</Link></h3>
+                                    </div>
+                                    <div>
+                                        <p>Specialties: {doctor.specialties.join(', ')}</p>
+                                        <p>License Number: {doctor.licenseNumber}</p>
+                                        <p>Years Of Experience: {doctor.yearsOfExperience}</p>
+                                        <p>Phone: {doctor.phoneNumber}</p>
+                                        <p>Address: {doctor.address}</p>
+                                        <button type="button" onClick={() => handleAccept(doctor._id, index)} className="btn btn-success mt-3 mx-4 px-3 py-2">
+                                            {
+                                                loadingAccept && index === customIndex ?
+                                                    <LoadingButton /> :
+                                                    <>Accept</>
+                                            }
+                                        </button>
+                                        <button type="button" onClick={() => handleReject(doctor.role, doctor._id, index)} className="btn btn-danger mt-3 px-3 py-2 mx-4 ">
+                                            {loadingReject && index === customIndex ?
+                                                <LoadingButton /> : <>
+                                                    Reject </>
+                                            }
+                                        </button>
+                                    </div>
+                                </div>
 
-                        </> : <>
-                            <h3>There Is Not Any Joining Requests</h3>
-                        </>
-                    }
-                </div>
+                            </SwiperSlide>
+                        ))
+                        }
+                    </Swiper>
+                    : <>
+                        <h2 style={{ textAlign: "center" }}>There Is Not Any Joining Requests.</h2>
+                    </>
+                }
+
             </div>
         </>
     )

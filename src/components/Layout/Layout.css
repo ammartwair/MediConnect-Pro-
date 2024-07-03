@@ -1,6 +1,10 @@
-.layout {
-    padding-top: 70px;
-    padding-bottom: 100px;
+.all {
+    /* padding-top: 70px;
+    padding-bottom: 100px; */
     min-height: 100vh;
     box-sizing: border-box;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }

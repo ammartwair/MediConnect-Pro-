@@ -1,0 +1,99 @@
+.login-container {
+    background: url('/src/images/b417ec0c-3707-48f7-b049-ff75bf458c2b.webp');
+    background-size: cover;
+}
+
+@media (max-width: 600px) {
+    .login-container {
+        background: url('/src/images/JHS_International-2.jpg');
+    }
+
+}
+
+
+.login {
+    position: relative;
+    color: #000;
+    margin-right: 20px;
+    display: inline-block;
+}
+
+.login::after {
+    content: '';
+    position: absolute;
+    bottom: -7px;
+    left: -5px;
+    width: 110%;
+    height: 2px;
+    background-color: red;
+    transform-origin: bottom left;
+}
+
+
+.login h2 {
+    display: inline-block;
+}
+
+.firstinput {
+    display: flex;
+    align-items: center;
+    position: relative;
+    color: #adadad;
+    border-bottom: 2px solid #d9d9d9;
+}
+
+.logininput {
+    font-family: "Segoe UI", Arial, sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    color: #333;
+    line-height: 1.2;
+    background: 0 0;
+    border: 0;
+    position: relative;
+}
+
+.focus-100::after {
+    content: "";
+    display: block;
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: #7f7f7f;
+    -webkit-transition: all .4s;
+    -o-transition: all .4s;
+    -moz-transition: all .4s;
+    transition: all .4s;
+}
+
+.logininput:focus+.focus-100::after {
+    width: 100%;
+}
+
+.logininput:focus {
+    color: #0d0f12;
+    background: 0 0;
+}
+
+.logininput:focus+span {
+    color: #0d0f12;
+}
+
+.form-control:focus {
+    box-shadow: none !important;
+}
+
+.focus-100::after {
+    background-color: #333;
+}
+
+#showHide span:hover {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+form label {
+    margin-top: 2rem;
+}

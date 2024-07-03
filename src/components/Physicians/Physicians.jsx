@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import Loading from '../Loading/Loading.jsx';
+import { Swiper, SwiperSlide } from 'swiper/react';
 
 export default function Physicians() {
 
@@ -11,20 +12,16 @@ export default function Physicians() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getDoctors().then((result) => {
-      setDoctors(result);
-    });
+    getDoctors();
   }, []);
 
   async function getDoctors() {
-    let docs = [];
     let res = await axios.get(`http://localhost:5000/user/doctorsAccepted`).then((response) => {
       if (response.data) {
         let { data } = response;
         if (data.message === "Success") {
-          docs = data.doctors;
+          setDoctors(data.doctors);
           setLoading(false);
-          return docs;
         } else {
           setLoading(false);
           console.log(response.data.message);
@@ -35,8 +32,33 @@ export default function Physicians() {
         setLoading(false);
         console.log(err);
       })
-    return docs;
   }
+
+
+  const addSpaces = (text) => {
+    // This function processes the text to add spaces
+    let result = '';
+    let insideParentheses = false;
+
+    for (let i = 0; i < text.length; i++) {
+      let char = text[i];
+
+      if (char === '(') {
+        insideParentheses = true;
+        result += ' ' + char;
+      } else if (char === ')') {
+        insideParentheses = false;
+        result += char;
+      } else if (char.match(/[A-Z]/) && !insideParentheses) {
+        result += ' ' + char;
+      } else {
+        result += char;
+      }
+    }
+
+    return result.trim();
+  };
+
 
   if (loading) {
     return <Loading />
@@ -51,26 +73,36 @@ export default function Physicians() {
         <link rel="canonical" href="www.facebook.com" />
       </Helmet>
       <div>
-        <h2 className='my-4' id="SpecialtyTitle" style={{ textTransform: 'capitalize' }}>{ }</h2>
         <div className="container">
+        <h3 className='my-4' id="SpecialtyTitle">Our Providers: </h3>
           {doctors.length > 0 ?
-            <>
-              <div className="row">
-                {
-                  doctors.map((doctor) => (
-                    <div key={doctor._id} className="col-md-4" style={{ border: '1px solid black', position: "relative", height: '600px',  padding:"0"}} >
-                      <div height={'60%'}>
-                        <img src={doctor.image.secure_url} alt="Doctor's image" style={{ height: '100%', width: '100%' }} />
-                      </div>
-                      <div height={'20%'}>
-                        <h4 className='mt-2' style={{ textAlign: 'center', textTransform: 'capitalize' }} >{doctor.userName}</h4>
-                        <p>{doctor.specialties.join(', ')}</p>
-                      </div>
+            <Swiper
+              spaceBetween={50}
+              slidesPerView={3}
+              onSlideChange={() => console.log('slide change')}
+            >
+              {doctors.map((doctor) => (
+                <SwiperSlide key={doctor._id}>
+                  <div className="doctor-card">
+                    <div className="doctor-image">
+                      <Link to={`/Profile/${doctor._id}`}>
+                        <img decoding="async" src={doctor.image.secure_url} alt={`DR ${doctor.userName}`} />
+                      </Link>
                     </div>
-                  ))
-                }
-              </div>
-            </> : <>
+                    <div className="doctor-content">
+                      <h3>Dr. {doctor.userName}</h3>
+                      <p>{doctor.specialties.map((specialty, index) => {
+                        if (index === doctor.specialties.length - 1) {
+                          return addSpaces(specialty)
+                        }
+                        return addSpaces(specialty) + ', '
+                      })}</p>
+                    </div>
+                  </div>
+                </SwiperSlide>
+              ))
+              }
+            </Swiper> : <>
               <h3> No Registerd Doctors Yet</h3>
             </>
           }

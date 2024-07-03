@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet'
 import { Link } from 'react-router-dom';
 import Loading from '../Loading/Loading.jsx';
+import './MyAppointments.css'
 
 export default function MyAppointments({ user }) {
 
@@ -44,7 +45,7 @@ export default function MyAppointments({ user }) {
                         }
                     });
                 }
-                    setLoading(false)
+                setLoading(false)
             } catch (error) {
                 console.error('Error fetching user profile: ', error);
                 setLoading(false);
@@ -73,27 +74,32 @@ export default function MyAppointments({ user }) {
                 <meta name="description" content="This is Specialty page" />
                 <link rel="canonical" href="www.facebook.com" />
             </Helmet>
-            <div>
+            <div className={`myAppointments-container`}>
                 <h2 className='my-4' id="AppointmentsTitle">My Appointments</h2>
-                <div className="container">
-                    {appointments?.length > 0 ?
-                        <>
-                            <div className="row">
-                                {
-                                    appointments.map((appointment) => (
-                                        <div key={appointment._id} className="col-md-4 container" style={{ border: '1px solid black', height: '200px' }} >
-                                            <p>Date: {formatDate(appointment.date)}</p>
-                                            <p style={{ textTransform: 'capitalize' }}>Status: {appointment.status}</p>
-                                            <Link to={`/AppointmentDetails/${appointment._id}`} >Show Appointment Details</Link>
-                                        </div>
-                                    ))
-                                }
-                            </div>
-                        </> : <>
-                            <h3> No Appointments Yet</h3>
-                        </>
-                    }
-                </div>
+            </div>
+            <div className="container my-5 py-5">
+                {appointments?.length > 0 ?
+                    <>
+                        <div className="container list" >
+                            <p style={{ color: "tomato" }}>No. </p>
+                            <p  style={{ color: "tomato" }}>Date</p>
+                            <p  style={{ color: "tomato" }}>Status</p>
+                            <p  style={{ color: "tomato" }}>Details</p>
+                        </div>
+                        {
+                            appointments.map((appointment, index) => (
+                                <div key={appointment._id} className="container list" >
+                                    <p >{index + 1}. </p>
+                                    <p>{formatDate(appointment.date)}</p>
+                                    <p style={{ textTransform: 'capitalize' }}>{appointment.status}</p>
+                                    <p> <Link to={`/AppointmentDetails/${appointment._id}`} >Show</Link></p>
+                                </div>
+                            ))
+                        }
+                    </> : <>
+                        <h3> No Appointments Yet</h3>
+                    </>
+                }
             </div>
         </>
     )

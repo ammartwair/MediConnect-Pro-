@@ -1,21 +1,22 @@
 import axios from 'axios';
 import React, { useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet';
-import { useParams, Link } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import { Link } from 'react-router-dom';
+import { Swiper, SwiperSlide } from 'swiper/react';
+import Loading from '../../Loading/Loading.jsx';
 
 export default function ManageDoctors() {
 
     const [doctors, setDoctors] = useState([]);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        getDoctors().then((result) => {
-            setDoctors(result);
-        });
+        window.scrollTo(0, 0);
+        getDoctors();
     }, []);
 
     async function getDoctors() {
-        let docs = [];
+        setLoading(true);
         const axiosInstance = axios.create({
             baseURL: 'http://localhost:5000',
             headers: {
@@ -27,8 +28,9 @@ export default function ManageDoctors() {
             if (response.data) {
                 let { data } = response;
                 if (data.message === "Success") {
-                    docs = data.doctors;
-                    return docs;
+                    setDoctors(data.doctors);
+                    setLoading(false);
+
                 } else {
                     console.log(response.data.message);
                 }
@@ -37,7 +39,10 @@ export default function ManageDoctors() {
             .catch((err) => {
                 console.log(err);
             })
-        return docs;
+    }
+
+    if (loading) {
+        return <Loading />
     }
 
     return (
@@ -48,37 +53,49 @@ export default function ManageDoctors() {
                 <meta name="description" content="This is Specialty page" />
                 <link rel="canonical" href="www.facebook.com" />
             </Helmet>
-            <div>
-                <h2 className='my-4' id="SpecialtyTitle" style={{ textTransform: 'capitalize' }}>{ }</h2>
-                <div className="container">
-                    {doctors.length > 0 ?
-                        <>
-                            <div className="row">
-                                {
-                                    doctors.map((doctor) => (
-                                        <div key={doctor._id} className="col-md-4" style={{ border: '1px solid black', position: "relative", height: '600px' }} >
+            {
+                doctors?.length > 0 ?
+                    <div className='container pt-5' >
+                        <h3>Registered Doctors: </h3>
+                    </div>
+                    : <></>
+            }
+            <div className="container joiningReq">
+                {doctors?.length > 0 ?
+                    <Swiper
+                        spaceBetween={50}
+                        slidesPerView={3}
+                        onSlideChange={() => console.log('slide change')}
+                    >
+                        {doctors.map((doctor, index) => (
+                            <SwiperSlide key={doctor._id}>
+                                <div className="doctor-card">
+                                    <div className="doctor-image">
+                                        <Link to={`/Profile/${doctor._id}`}>
+                                            <img decoding="async" src={doctor.image.secure_url} alt={`DR ${doctor.userName}`} height={"470px"} />
+                                        </Link>
+                                    </div>
+                                    <div className="doctor-content">
+                                        <h3><Link to={`/Profile/${doctor._id}`}>Dr. {doctor.userName}</Link></h3>
+                                    </div>
+                                    <div>
+                                        <p>Specialties: {doctor.specialties.join(', ')}</p>
+                                        <p>License Number: {doctor.licenseNumber}</p>
+                                        <p>Years Of Experience: {doctor.yearsOfExperience}</p>
+                                        <p>Phone: {doctor.phoneNumber}</p>
+                                        <p>Address: {doctor.address}</p>
+                                    </div>
+                                </div>
 
-                                            <div height={'60%'}>
-                                                <img src={doctor.image.secure_url} alt="Doctor's image" style={{ height: '100%', width: '100%' }} />
-                                            </div>
-                                            <div height={'20%'}>
-                                                <h4 className='mt-2' style={{ textAlign: 'center', textTransform: 'capitalize' }} >{doctor.userName}</h4>
-                                                <p>{doctor.specialties.join(', ')}</p>
-                                            </div>
-                                            <div style={{ position: 'absolute', bottom: "0", left: '50%', transform: 'translate(-50%, -50%)' }}>
-                                                <Link to={`/Profile/${doctor._id}`}>
-                                                    <h5 style={{ textAlign: 'center' }}>VIEW PROFILE</h5>
-                                                </Link>
-                                            </div>
-                                        </div>
-                                    ))
-                                }
-                            </div>
-                        </> : <>
-                            <h3> No Registerd Doctors Yet</h3>
-                        </>
-                    }
-                </div>
+                            </SwiperSlide>
+                        ))
+                        }
+                    </Swiper>
+                    : <>
+                        <h2 style={{ textAlign: "center" }}>No Registered Doctors Yet</h2>
+                    </>
+                }
+
             </div>
         </>
     )

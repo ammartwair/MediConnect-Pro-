@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Helmet } from 'react-helmet'
 import { Link } from 'react-router-dom';
 import './Dashboard.css';
@@ -45,27 +45,31 @@ export default function Dashboard(user) {
     return url.replace(/\//g, '%2F');
   }
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
   return (
     <>
       <Helmet>
         <meta charSet="utf-8" />
         <title>MediConnect Pro | Dashboard</title>
         <meta name='description' content='This is home page' />
-        <link rel="canonical" href="http://mysite.com/example" />\
+        <link rel="canonical" href="http://mysite.com/example" />
       </Helmet>
       <div>
-        <h1 className='my-4' style={{textDecoration:"underline"}}>Our Specialties</h1>
         <div className="container">
-          <div className="row">
+          <h1 className='mt-5' style={{ textDecoration: "underline" }}>Our Specialties</h1>
+          <div className="row mb-5 pb-5">
             {
               specialties.map((specialty, index) => (
                 <div className='my-5 col-md-6' key={index}>
                   <div className=" d-flex justify-content-center w-100 h-100 my-5">
-                    <div className='box-shadow d-flex justify-content-center' style={{ width:"100%" , height:"100%" ,  position: "relative" }}>
-                      <Link to={`/Specialty/${replaceString(specialty)}`} style={{ width: "100%"  , height:"100%"}} >
-                        <img src={Images[index]} alt={specialty} width={"100%"} height={"100%"}  style={{objectFit:"cover"}}/>
+                    <div className='box-shadow d-flex justify-content-center' style={{ width: "100%", height: "100%", position: "relative" }}>
+                      <Link to={`/Specialty/${replaceString(specialty)}`} style={{ width: "100%", height: "100%" }} >
+                        <img src={Images[index]} alt={specialty} width={"100%"} height={"100%"} style={{ objectFit: "cover" }} />
                       </Link>
-                      <Link className='link' style={{ width:"100%", textAlign:"center", position:"absolute", left:"50%" , bottom:"-55px",  transform: "translateX(-50%)"   , textDecoration: "none" }} to={`/Specialty/${replaceString(specialty)}`} ><h2>{specialty}</h2></Link>
+                      <Link className='link' style={{ width: "100%", textAlign: "center", position: "absolute", left: "50%", bottom: "-55px", transform: "translateX(-50%)", textDecoration: "none" }} to={`/Specialty/${replaceString(specialty)}`} ><h2>{specialty}</h2></Link>
                     </div>
                   </div>
                 </div>

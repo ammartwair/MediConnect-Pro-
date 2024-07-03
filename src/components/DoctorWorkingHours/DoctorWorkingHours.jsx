@@ -11,6 +11,10 @@ import * as Yup from 'yup';
 
 export default function DoctorWorkingHours({ user }) {
 
+    useEffect(() => {
+        window.scrollTo(0, 0);
+    }, []);
+
     const { id } = useParams();
     let [errors, setErrors] = useState([]);
     let [statusError, setStatusErrors] = useState('');
@@ -20,7 +24,7 @@ export default function DoctorWorkingHours({ user }) {
         workingHours: Yup.array()
             .of(
                 Yup.object().shape({
-                    number: Yup.number().required(),
+                    dayOfWeek: Yup.number().required(),
                     start: Yup.string().required('Start time is required'),
                     end: Yup.string().required('End time is required')
                 })
@@ -33,11 +37,11 @@ export default function DoctorWorkingHours({ user }) {
     let formik = useFormik({
         initialValues: {
             workingHours: [
-                { number: 0, start: '09:00', end: '16:00' },
-                { number: 0, start: '09:00', end: '16:00' },
-                { number: 0, start: '09:00', end: '16:00' },
-                { number: 0, start: '09:00', end: '16:00' },
-                { number: 0, start: '09:00', end: '16:00' },
+                { dayOfWeek: 0, start: '09:00', end: '16:00' },
+                { dayOfWeek: 1, start: '09:00', end: '16:00' },
+                { dayOfWeek: 2, start: '09:00', end: '16:00' },
+                { dayOfWeek: 3, start: '09:00', end: '16:00' },
+                { dayOfWeek: 4, start: '09:00', end: '16:00' },
             ]
         }, validationSchema: schema,
         onSubmit: sendHoursData,
@@ -48,6 +52,7 @@ export default function DoctorWorkingHours({ user }) {
         values.workingHours.map((day) => {
             if (!isValidTimeFormat(day.start) || !isValidTimeFormat(day.end)) {
                 toast.error("Error Occured");
+                return;
             }
         })
         try {
@@ -58,9 +63,11 @@ export default function DoctorWorkingHours({ user }) {
                     'Authorization': `${localStorage.getItem('Authorization')}`
                 }
             });
+            console.log(values.workingHours);
             let { data } = await axiosInstance.post(`http://localhost:5000/auth/addWorkingHours`, values)
                 .catch((err) => {
                     console.log(err);
+                    toast.error("Error Occured");
                 })
 
             if (data.message === 'Success Adding Working Hours') {
@@ -94,6 +101,8 @@ export default function DoctorWorkingHours({ user }) {
         return regex.test(input);
     }
 
+
+
     return (
         <>
             <Helmet>
@@ -110,6 +119,7 @@ export default function DoctorWorkingHours({ user }) {
 
                 <form onSubmit={formik.handleSubmit}>
                     {formik.values.workingHours.map((hour, index) => (
+
                         <div key={index}>
                             <span style={{ marginRight: "5px" }}>{daysOfWeek[index]}: </span>
                             <label htmlFor={`workingHours[${index}].start`} style={{ marginRight: "5px" }}>Start Time</label>
@@ -137,9 +147,6 @@ export default function DoctorWorkingHours({ user }) {
                             <br />
                         </div>
                     ))}
-                    {
-                        console.log(formik.errors)
-                    }
                     <button type="submit">Submit</button>
                 </form>
             </div>

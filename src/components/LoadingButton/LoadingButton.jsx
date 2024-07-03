@@ -4,6 +4,6 @@ import { faSpinner, faCircleNotch, faRefresh } from '@fortawesome/free-solid-svg
 
 export default function LoadingButton() {
     return (
-        <><FontAwesomeIcon icon={faCircleNotch} spin /> Loading </>
+        <><FontAwesomeIcon icon={faCircleNotch} spin />  Loading </>
     )
 }

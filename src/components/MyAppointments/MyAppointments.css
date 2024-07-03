@@ -1,0 +1,50 @@
+.myAppointments-container {
+    background: url('/src/images/appointmentsCover.webp') no-repeat center center;
+    height: 60vh;
+    background-size: cover;
+    position: relative;
+    background-attachment: fixed;
+}
+
+.myAppointments-container h2 {
+    position: absolute;
+    bottom: 15%;
+    left: 15%;
+    background-color: #fff;
+    color: #000;
+    border-radius: 1rem;
+    padding: 0.5rem;
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
+}
+
+.list {
+    display: flex;
+    flex-direction: row;
+    gap: 2rem;
+    background-color: #fff;
+    padding: 1rem 2rem;
+    margin: 0 0 3rem;
+    border-radius: 0.5rem;
+    line-height: 1.5rem;
+    filter: drop-shadow(0 0.25rem 0.5rem pink);
+    box-shadow: 0 0 1rem pink;
+    transition: all 1s;
+    justify-content: space-between;
+}
+
+.list:hover {
+    filter: drop-shadow(0 0.25rem 1.5rem pink);
+    box-shadow: 0 0 0.1rem pink;
+}
+
+.list p {
+
+    white-space: nowrap;
+}
+
+ul {
+	padding-left: 1rem;
+	li::marker {
+		color: tomato;
+	}
+}

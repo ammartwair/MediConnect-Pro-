@@ -6,11 +6,13 @@ import './Profile.css'
 import { useFormik, yupToFormErrors } from 'formik'
 import Swal from 'sweetalert2'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faSpinner, faCircleNotch, faRefresh } from '@fortawesome/free-solid-svg-icons';
+import { faSpinner, faCircleNotch, faRefresh, faArrowRight, faEye, faEyeSlash } from '@fortawesome/free-solid-svg-icons';
 import * as Yup from 'yup'
 import { toast } from 'react-toastify';
 import Loading from '../Loading/Loading.jsx';
 import LoadingButton from '../LoadingButton/LoadingButton.jsx';
+import ProfileImageUpload from './ProfileImageUpload.jsx';
+import profImage from '../../images/profileImage.webp'
 
 
 export default function Profile({ user }) {
@@ -24,9 +26,64 @@ export default function Profile({ user }) {
     const [showbutton, setShowButton] = useState(true);
     const { id } = useParams();
     let navigate = useNavigate();
+    const [showHide, setShowHide] = useState(false);
+    const [request, setRequest] = useState(false);
+
+
+    const [opassword, setoPassword] = useState('');
+    const [npassword, setnPassword] = useState('');
+    const [cpassword, setcPassword] = useState('');
+    const [isoPasswordValid, setIsoPasswordValid] = useState(false);
+    const [equaloPassword, setEqualoPassword] = useState(true);
+    const [isnPasswordValid, setIsnPasswordValid] = useState(false);
+    const [equalnPassword, setEqualnPassword] = useState(true);
+    const [iscPasswordValid, setIscPasswordValid] = useState(false);
+    const [equalcPassword, setEqualcPassword] = useState(true);
+    const [newPage, setNewPage] = useState(true);
+
+
     useEffect(() => {
+        if (newPage) {
+            window.scrollTo(0, 0);
+            setNewPage(false);
+        }
         getUser(id);
-    }, []);
+    }, [request]);
+
+
+    useEffect(() => {
+        if (showForm) {
+            checkPasswordInputs();
+        }
+        console.log(opassword, npassword, cpassword);
+    }, [opassword, npassword, cpassword]);
+
+    const checkPasswordInputs = () => {
+        if (isnPasswordValid && iscPasswordValid && isoPasswordValid && cpassword === npassword && npassword !== opassword) {
+            console.log("yes");
+            ApproveInputs();
+        } else {
+            DeclineInputs();
+        }
+    }
+    const ApproveInputs = () => {
+        const updatePass = document.getElementById("updatePass");
+        updatePass.removeAttribute('disabled');
+        updatePass.type = "submit";
+        if (updatePass.classList.contains('btn-outline-secondary')) {
+            updatePass.classList.remove('btn-outline-secondary');
+        }
+        updatePass.classList.add('btn-outline-success');
+    }
+    const DeclineInputs = () => {
+        const updatePass = document.getElementById("updatePass");
+        if (updatePass.classList.contains('btn-outline-success')) {
+            updatePass.classList.remove('btn-outline-success');
+        }
+        updatePass.classList.add('btn-outline-secondary');
+        updatePass.setAttribute('disabled', 'disabled');
+        updatePass.type = "button";
+    }
 
     async function getUser(id) {
         let user = null;
@@ -91,6 +148,11 @@ export default function Profile({ user }) {
 
     async function updatePassword(values) {
         setLoadingPassword(true);
+        if (opassword === npassword) {
+            toast.error("Please insert a new Password");
+            setLoadingPassword(false);
+            return
+        }
         const axiosInstance = axios.create({
             baseURL: 'http://localhost:5000',
             headers: {
@@ -100,32 +162,29 @@ export default function Profile({ user }) {
         });
         let res = await axiosInstance.patch('http://localhost:5000/user/updatePassword', values).then((response) => {
             if (response.data.message === 'Success') {
-                setErrors([]);
-                setStatusErrors('');
-                Swal.fire({
-                    position: "center",
-                    icon: "success",
-                    title: "Your Passowrd Updated Sucessfully",
-                    showConfirmButton: false,
-                    timer: 1500
-                });
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1500);
+                setLoadingPassword(false);
+                toast.success("Your Passowrd Updated Sucessfully");
+                DeclineInputs();
+                toggleFormVisibility();
+                setnPassword('');
+                setoPassword('');
+                setcPassword('');
+                setIscPasswordValid(false);
+                setIsnPasswordValid(false);
+                setIscPasswordValid(false);
+                setEqualcPassword(true);
+                setEqualnPassword(true);
+                setEqualoPassword(true);
+                setRequest(!request);
             } else {
                 setLoadingPassword(false);
-                setErrors(response.data.err[0]);
-                console.log(response.data);
+                toast.error("Error Occured");
+                console.log(response.data.message);
             }
         }).catch((error) => {
             setLoadingPassword(false);
-            Swal.fire({
-                icon: "error",
-                title: "Oops...",
-                text: "Something went wrong!",
-                footer: '<a href="#">Why do I have this issue?</a>'
-            });
-            console.error('Error, ', error);
+            toast.error("Error Occured");
+            console.log('Error, ', error);
         });
     }
 
@@ -135,6 +194,7 @@ export default function Profile({ user }) {
         }, validationSchema: schema,
         onSubmit: updateImage
     })
+
 
     async function updateImage(values) {
         setLoadingChangeProfile(true);
@@ -154,38 +214,41 @@ export default function Profile({ user }) {
             },
         }).then((response) => {
             if (response.data.message === 'success') {
-                setErrors([]);
-                setStatusErrors('');
-                Swal.fire({
-                    position: "center",
-                    icon: "success",
-                    title: "Your Profile Picture Updated Sucessfully",
-                    showConfirmButton: false,
-                    timer: 1500
-                });
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1500);
+                toast.success("Your Profile Picture Updated Sucessfully");
+                setLoadingChangeProfile(false);
+                const imgbtn = document.getElementById("imgbtn");
+                imgbtn.setAttribute('disabled', 'disabled');
+                imgbtn.type = "button";
+                if (imgbtn.classList.contains('btn-outline-success')) {
+                    imgbtn.classList.remove('btn-outline-success');
+                }
+                imgbtn.classList.add('btn-outline-secondary');
+                setRequest(!request);
             } else {
-                setErrors(response.data.err[0]);
+                toast.error("Error Occured");
                 console.log(response.data);
             }
         }).catch((error) => {
             setLoadingChangeProfile(false);
-            Swal.fire({
-                icon: "error",
-                title: "Oops...",
-                text: "Something went wrong!",
-                footer: '<a href="#">Why do I have this issue?</a>'
-            });
-            console.error('Error, ', error);
+            toast.error("Error Occured");
+            console.log('Error, ', error);
         });
     }
 
+    const [uploadedImage, setUploadedImage] = useState(null);
 
-    const handleImageUpload = (file) => {
-        formik.setFieldValue('image', file);
-    };
+
+    const handleImageUpload = (imageData) => {
+        setUploadedImage(imageData);
+        const imgbtn = document.getElementById("imgbtn");
+        imgbtn.removeAttribute('disabled');
+        imgbtn.type = "submit";
+        if (imgbtn.classList.contains('btn-outline-secondary')) {
+            imgbtn.classList.remove('btn-outline-secondary');
+        }
+        imgbtn.classList.add('btn-outline-success');
+        formik.setFieldValue('image', imageData);
+    }
 
 
     const toggleFormVisibility = () => {
@@ -193,9 +256,37 @@ export default function Profile({ user }) {
         setShowButton(prevState => !prevState);
     };
 
+    const handleoPasswordChange = (event) => {
+        setEqualoPassword(false);
+        const value = event.target.value;
+        passwordFormik.values.oldPassword = value;
+        setoPassword(value);
+        const pattern = /^[A-Za-z][A-Za-z0-9\\\/\*\_\.\@\!\$\#\%\^\&\(\)\]\[\{\}\-\+\,\|\=\?\`\<\>\;\:\"\']{5,25}$/;
+        setIsoPasswordValid(pattern.test(value));
+    }
+
+    const handlenPasswordChange = (event) => {
+        setEqualnPassword(false);
+        const value = event.target.value;
+        passwordFormik.values.newPassword = value;
+        setnPassword(value);
+        const pattern = /^[A-Za-z][A-Za-z0-9\\\/\*\_\.\@\!\$\#\%\^\&\(\)\]\[\{\}\-\+\,\|\=\?\`\<\>\;\:\"\']{5,25}$/;
+        setIsnPasswordValid(pattern.test(value));
+    }
+
+    const handlecPasswordChange = (event) => {
+        setEqualcPassword(false);
+        const value = event.target.value;
+        passwordFormik.values.cPassword = value;
+        setcPassword(value);
+        const pattern = /^[A-Za-z][A-Za-z0-9\\\/\*\_\.\@\!\$\#\%\^\&\(\)\]\[\{\}\-\+\,\|\=\?\`\<\>\;\:\"\']{5,25}$/;
+        setIscPasswordValid(pattern.test(value));
+    }
+    const [adminLoad, setAdminLoad] = useState(false);
+
 
     async function handleAdmin(id) {
-
+        setAdminLoad(true)
         Swal.fire({
             title: "Are you sure?",
             text: "You won't be able to revert this!",
@@ -218,26 +309,29 @@ export default function Profile({ user }) {
                     if (response.data) {
                         let { data } = response;
                         if (data.message === "Admin Created") {
-                            setLoading(false);
+                            setAdminLoad(false);
                             toast.success("Admin Created Successfully")
                             setTimeout(() => {
                                 navigate("/ManageDoctors")
-                            }, 2000);
+                            }, 1500);
                         } else {
-                            setLoading(false);
+                            setAdminLoad(false);
                             console.log(response.data.message);
                             toast.error("Error Occured")
                         }
                     }
                 })
                     .catch((err) => {
-                        setLoading(false);
+                        setAdminLoad(false);
                         console.log(err);
                         toast.error("Error Occured")
                     })
             }
         });
     }
+
+    const [deletionLoad, setDeletionLoad] = useState(false);
+
 
     function handleDelete(role, id) {
         Swal.fire({
@@ -254,8 +348,9 @@ export default function Profile({ user }) {
             }
         });
     }
+
     async function deleteUser(role, id) {
-        setLoading(true);
+        setDeletionLoad(true)
         const axiosInstance = axios.create({
             baseURL: 'http://localhost:5000',
             headers: {
@@ -267,8 +362,8 @@ export default function Profile({ user }) {
             if (response.data) {
                 let { data } = response;
                 if (data.message === "Success") {
-                    setLoading(false);
                     toast.success("Account Deleted successfully");
+                    setDeletionLoad(false);
                     setTimeout(() => {
                         if (role === "Doctor") {
                             navigate("/ManageDoctors");
@@ -277,20 +372,37 @@ export default function Profile({ user }) {
                         }
                     }, 2000);
                 } else {
-                    setLoading(false);
                     toast.error("Error Occured")
+                    setDeletionLoad(false);
                     console.log(response.data.message);
                 }
             }
         })
             .catch((err) => {
-                setLoading(false);
                 console.log(err);
+                setDeletionLoad(false);
             })
     }
 
     if (loading) {
         return <Loading />
+    }
+
+
+    const handleTogglePasswordVisibility = () => {
+        const passField = document.getElementById('opass');
+        const cpassField = document.getElementById('cpass');
+        const npassField = document.getElementById('npass');
+        if (passField.type === 'password') {
+            passField.type = 'text';
+            cpassField.type = 'text';
+            npassField.type = 'text';
+        } else {
+            cpassField.type = 'password';
+            passField.type = 'password';
+            npassField.type = 'password';
+        }
+        setShowHide(!showHide);
     }
 
     return (
@@ -301,138 +413,234 @@ export default function Profile({ user }) {
                 <meta name="description" content="This is Profile page" />
                 <link rel="canonical" href="www.facebook.com" />
             </Helmet>
-            <div>{
-                userProfile ? <>
-                    <div style={{ border: '1px solid black', height: '800px' }} className="profileflex" >
-                        <div >
-                            <div style={{ height: '60%', width: '100%' }}>
-                                <img src={userProfile.image.secure_url} alt="Doctor's image" style={{ height: '100%', objectFit: 'contain' }} />
-                            </div>
-                            <h2 className='mt-2' style={{ textAlign: 'center', textTransform: 'capitalize' }} >{userProfile.userName}</h2>
-                        </div>
-                        <div>
-                            <div height={'20%'} style={{ padding: '1rem' }}>
-                                {userProfile.role === 'Doctor' ? <>
-                                    {
-                                        userProfile._id !== user.id ?
-                                            <>
-                                                {
+            <div>
+                {
+                    userProfile ?
+                        <div className='prof row pb-5 mx-0' >
+                            <div className="col-lg-6 container mt-5 mx-0">
+                                <div className='row'>
+                                    <div className="col-lg-6"><form onSubmit={formik.handleSubmit}>
+                                        <ProfileImageUpload onImageUpload={handleImageUpload} image={userProfile.image.secure_url} edit={user.id === userProfile._id ? "Edit" : ''} />
+                                        <div className="d-grid gap-2" id="changePassutton">
+                                            {
+                                                userProfile._id == user.id &&
+                                                <button type="button" id="imgbtn" className="btn btn-outline-secondary mt-4" disabled>
+                                                    {
+                                                        loadingChangeProfile ?
+                                                            <LoadingButton />
+                                                            : <>Change Profile Picture </>}
+                                                </button>
+                                            }
+
+                                        </div>
+                                    </form>
+                                        <h2 className='mt-5' style={{ textAlign: 'center', textTransform: 'capitalize' }} > {userProfile.role === "Doctor" ? <>Dr. </> : ''}{userProfile.userName}</h2>
+                                        {
+                                            userProfile.role === 'Doctor' ?
+                                                userProfile._id !== user.id ?
                                                     user.role === "Admin" ?
-                                                        <>
-                                                            <button onClick={() => handleAdmin(userProfile._id)} className='btn btn-warning'>Make as an Admin</button><br /><br />
-                                                            <button onClick={() => handleDelete(userProfile.role, userProfile._id)} className='btn btn-danger'>Delete Account</button><br /><br />
+                                                        <div className='d-flex justify-content-center'>
+                                                            <div className="adiminEdition" style={{ textAlign: "center" }}>
+                                                                <button onClick={() => handleAdmin(userProfile._id)} className='btn btn-warning'>
+                                                                    {
+                                                                        adminLoad ?
+                                                                            <LoadingButton /> : <>
+                                                                                Make as an Admin
+                                                                            </>
+                                                                    }
+                                                                </button><br /><br />
+                                                                <button onClick={() => handleDelete(userProfile.role, userProfile._id)} className='btn btn-danger'>
+                                                                    {
+                                                                        deletionLoad ?
+                                                                            <LoadingButton /> : <>
+                                                                                Delete Account
+                                                                            </>
+                                                                    }
+                                                                </button><br /><br />
+                                                            </div>
+                                                        </div> :
+                                                        user.role === "Patient" ?
+                                                            <div className="d-flex justify-content-center">
+                                                                <Link to={`/Appointment/${userProfile._id}`} className="default-btn">
+                                                                    <span className="icon-circle mx-2">
+                                                                        <FontAwesomeIcon icon={faArrowRight} className='rightArrow' />
+                                                                    </span>
+                                                                    <span style={{ fontSize: "20px" }}>Book an Appointment</span>
+                                                                </Link>
+                                                            </div>
+                                                            : <></>
+                                                    : <div className='d-flex justify-content-center'>
+                                                        <Link to={`/DoctorWorkingHours/${userProfile._id}`}>Manage Working Hours</Link><br /><br />
+                                                    </div>
+                                                : <></>
+                                        }
+                                    </div>
+                                    <div className="col-lg-6 pt-3">
+                                        {userProfile.role === 'Doctor' ? <>
 
-                                                        </> :
-                                                        <>
-                                                            <Link to={`/Appointment/${userProfile._id}`}>Request an appointment</Link><br /><br />
-                                                        </>
-                                                }
-                                            </> : <>
-                                                <Link to={`/DoctorWorkingHours/${userProfile._id}`}>Manage Working Hours</Link><br /><br />
-                                            </>
-                                    }
-                                    <p>Bio: {userProfile.bio}</p>
-                                    <p>Specialties: {userProfile.specialties.join(', ')}</p>
-                                    <p>Years of Experience: {userProfile.yearsOfExperience}</p>
-                                    <p>Consultation Fees: {userProfile.consultationFees}</p>
-                                </> : <>
-                                    {
-                                        user.role === "Admin" && userProfile._id !== user.id ?
-                                            <>
-                                                <button onClick={() => handleDelete(userProfile.role, userProfile._id)} className='btn btn-danger'>Delete Account</button><br /><br />
-                                            </>
-                                            : <></>
-                                    }
-                                </>}
-                                <p>Phone: {userProfile.phoneNumber}</p>
-                                {
-                                    userProfile._id == user.id ?
-                                        <>
-                                            <p>Address: {userProfile.address}</p>
-                                            <form onSubmit={formik.handleSubmit}>
-                                                <input
-                                                    id="image"
-                                                    name="image"
-                                                    type="file"
-                                                    onChange={(event) => handleImageUpload(event.target.files[0])}
-                                                />
-                                                <p className='text-danger'>{formik.errors.image}</p>
-                                                <div className="d-grid gap-2" id="changePassutton">
-                                                    <button className="btn btn-primary mt-3">
-                                                        {
-                                                            loadingChangeProfile ?
-                                                                <LoadingButton />
-                                                                : <>Change Profile Picture </>}
-                                                    </button>
+                                            <div className="my-5 d-flex justify-content-center pt-5">
+                                                <div className="Info">
+                                                    <p>Bio: {userProfile.bio}</p>
+                                                    <p>Specialties: {userProfile.specialties.join(', ')}</p>
+                                                    <p>Years of Experience: {userProfile.yearsOfExperience}</p>
+                                                    <p>Consultation Fees: {userProfile.consultationFees}</p>
+                                                    <p>Address: {userProfile.address}</p>
+                                                    <p>Phone: {userProfile.phoneNumber}</p>
                                                 </div>
-                                            </form>
-                                            <br />
+                                            </div>
+                                        </> : <>
                                             {
-                                                showbutton && (<>
-                                                    <div className="d-grid gap-2">
-                                                        <button className="btn btn-primary mt-3" onClick={toggleFormVisibility}>Change Password</button>
-                                                    </div>
-                                                </>)
-                                            }
-                                            {
-                                                !showbutton && (<>
-                                                    <div className="d-grid gap-2">
-                                                        <button className="btn btn-primary mt-3" onClick={toggleFormVisibility}>Cancel</button>
-                                                    </div>
-                                                </>)
-                                            }
-                                            <br />
-                                            {showForm && (<>
-                                                <form onSubmit={passwordFormik.handleSubmit}>
-                                                    <div className="form-floating mb-3">
-                                                        <input type="password" name='oldPassword' className="form-control" id="floatingOldPassword" placeholder="Old Password"
-                                                            value={passwordFormik.values.oldPassword}
-                                                            onChange={passwordFormik.handleChange}
-                                                        />
-                                                        <label htmlFor="floatingOldPassword">Old Password</label>
-                                                        <p className='text-danger'>{passwordFormik.errors.oldPassword}</p>
-                                                    </div>
-                                                    <div className="form-floating mb-3">
-                                                        <input type="password" name='newPassword' className="form-control" id="floatingNewPassword" placeholder="New Password"
-                                                            value={passwordFormik.values.newPassword}
-                                                            onChange={passwordFormik.handleChange}
-                                                        />
-                                                        <label htmlFor="floatingNewPassword">New Password</label>
-                                                        <p className='text-danger'>{passwordFormik.errors.newPassword}</p>
-                                                    </div>
-                                                    <div className="form-floating mb-3">
-                                                        <input type="password" name='cPassword' className="form-control" id="floatingCPassword" placeholder="Confirm Password"
-                                                            value={passwordFormik.values.cPassword}
-                                                            onChange={passwordFormik.handleChange}
-                                                        />
-                                                        <label htmlFor="floatingCPassword">Confirm Password</label>
-                                                        <p className='text-danger'>{passwordFormik.errors.cPassword}</p>
-                                                    </div>
-                                                    <div className="d-grid gap-2">
+                                                user.role === "Admin" && userProfile._id !== user.id ?
+                                                    <>
+                                                        <div className="my-5 d-flex justify-content-center" >
+                                                            <div className="Info">
+                                                                <p>Address: {userProfile.address}</p>
+                                                                <p>Phone: {userProfile.phoneNumber}</p>
+                                                            </div>
+                                                        </div>
+                                                        <div className='d-flex justify-content-center'>
+                                                            <button onClick={() => handleDelete(userProfile.role, userProfile._id)} className='btn btn-danger'>Delete Account</button><br /><br />
+                                                        </div>
 
-                                                        <button className="btn btn-primary mt-3">
-                                                            {
-                                                                loadingPassword ?
-                                                                    <LoadingButton />
-                                                                    : <>Update Password </>}
-                                                        </button>
+                                                    </> : <>
+                                                        <div className="my-5 d-flex justify-content-center">
+                                                            <div className="Info">
+                                                                <p>Address: {userProfile.address}</p>
+                                                                <p>Phone: {userProfile.phoneNumber}</p>
+                                                            </div>
+                                                        </div>
+                                                    </>
+                                            }
+                                        </>}
+                                        {
+                                            userProfile._id == user.id ? <>
+                                                <div className='d-flex justify-content-center'>
+                                                    <div className="paswordChange" style={{ width: "50%" }}>
+                                                        <br />
+                                                        {
+                                                            showbutton && (<>
+                                                                <div className="d-grid gap-2">
+                                                                    <button className="btn btn-primary mt-3" onClick={toggleFormVisibility}>Change Password</button>
+                                                                </div>
+                                                            </>)
+                                                        }
+                                                        {
+                                                            !showbutton && (<>
+                                                                <div className="d-grid gap-2">
+                                                                    <button className="btn btn-primary mt-3" onClick={toggleFormVisibility}>Cancel</button>
+                                                                </div>
+                                                            </>)
+                                                        }
+                                                        <br />
+                                                        <div>
+                                                            {showForm && (<>
+                                                                <form onSubmit={passwordFormik.handleSubmit} autoComplete='off'>
+                                                                    {/*  Old Password */}
+                                                                    <label>Old Password</label>
+                                                                    <div className="firstinput">
+                                                                        <input
+                                                                            id="opass"
+                                                                            type="password"
+                                                                            placeholder="Type your password"
+                                                                            value={opassword}
+                                                                            name="opassword"
+                                                                            className={`logininput form-control ${!equaloPassword ? isoPasswordValid ? 'is-valid' : 'is-invalid' : ''}`}
+                                                                            onChange={handleoPasswordChange}
+                                                                            required
+                                                                        />
+                                                                    </div>
+                                                                    {
+                                                                        !equaloPassword ?
+                                                                            !isoPasswordValid ?
+                                                                                <div className="small text-danger" id="passwordAlert">* Use 6 to 25 characters</div>
+                                                                                : <></>
+                                                                            : <></>
+                                                                    }
+                                                                    {/*  New Password */}
+                                                                    <label>New Password</label>
+                                                                    <div className="firstinput">
+                                                                        <input
+                                                                            id="npass"
+                                                                            type="password"
+                                                                            placeholder="Type your password"
+                                                                            value={npassword}
+                                                                            name="npassword"
+                                                                            className={`logininput form-control ${!equalnPassword ? isnPasswordValid ? 'is-valid' : 'is-invalid' : ''}`}
+                                                                            onChange={handlenPasswordChange}
+                                                                            required
+                                                                        />
+                                                                    </div>
+                                                                    {
+                                                                        !equalnPassword ?
+                                                                            !isnPasswordValid ?
+                                                                                <div className="small text-danger" id="passwordAlert">* Use 6 to 25 characters</div>
+                                                                                : <></>
+                                                                            : <></>
+                                                                    }
+                                                                    {/*  Confirm Password */}
+                                                                    <label>Confirm New Password</label>
+                                                                    <div className="firstinput">
+                                                                        <input
+                                                                            id="cpass"
+                                                                            type="password"
+                                                                            placeholder="Type your password"
+                                                                            value={cpassword}
+                                                                            name="cpassword"
+                                                                            className={`logininput form-control ${!equalcPassword ? iscPasswordValid ? npassword == cpassword ? 'is-valid' : 'is-invalid' : 'is-invalid' : ''}`}
+                                                                            onChange={handlecPasswordChange}
+                                                                            required
+                                                                        />
+                                                                    </div>
+                                                                    {
+                                                                        !equalcPassword ?
+                                                                            !iscPasswordValid ?
+                                                                                <div className="small text-danger" id="passwordAlert">* Use 6 to 25 characters</div>
+                                                                                :
+                                                                                npassword !== cpassword &&
+                                                                                <div className="small text-danger" id="passwordAlert">* Not match</div>
+                                                                            : <></>
+                                                                    }
 
+                                                                    {
+                                                                        !showHide ?
+                                                                            <>
+                                                                                <FontAwesomeIcon style={{ cursor: "pointer" }} id="showIcon" className="px-2 mx-1 showhide" onClick={handleTogglePasswordVisibility} icon={faEye} />
+                                                                                <span style={{ cursor: "pointer" }} id="showPass" className="showhide" onClick={handleTogglePasswordVisibility}>Show Password</span>
+                                                                            </> :
+                                                                            <>
+                                                                                <FontAwesomeIcon style={{ cursor: "pointer" }} id="hideIcon" className="px-2 mx-1 showhide" onClick={handleTogglePasswordVisibility} icon={faEyeSlash} />
+                                                                                <span style={{ cursor: "pointer" }} id="hidePass" className="showhide" onClick={handleTogglePasswordVisibility}>Hide Password</span>
+                                                                            </>
+                                                                    }
+                                                                    <div className="d-grid gap-2">
+                                                                        <button type='button' id='updatePass' className="btn btn-outline-secondary mt-3" disabled>
+                                                                            {
+                                                                                loadingPassword ?
+                                                                                    <LoadingButton />
+                                                                                    : <>Update Password </>}
+                                                                        </button>
+                                                                    </div>
+                                                                </form>
+                                                            </>)}
+                                                        </div>
                                                     </div>
-                                                </form>
-                                            </>)}
-                                        </> :
-                                        <></>
-                                }
+                                                </div> </> :
+                                                <></>
+                                        }
+
+                                        {
+                                            userProfile.role !== "Admin" && user.role === "Admin" ?
+                                                <div style={{ textAlign: "center", marginTop: "2rem" }}>
+                                                    <Link to={`/Appointments/${userProfile._id}`}><p>View Appointments</p></Link><br /><br />
+                                                </div> : <></>
+                                        }
+                                    </div>
+                                </div>
                             </div>
-                            {
-                                userProfile.role !== "Admin" && user.role === "Admin" ?
-                                    <>
-                                        <Link to={`/Appointments/${userProfile._id}`}>View Appointments</Link><br /><br />
-                                    </> : <></>
-                            }
-                        </div>
-                    </div>
-                </> : <></>}
+                            <div className="col-lg-6 d-flex justify-content-center  ">
+                                <img src={profImage} alt="profImage" width={"100%"} style={{ height: "100vh" }} />
+                            </div>
+                        </div> : <></>}
 
             </div >
         </>
